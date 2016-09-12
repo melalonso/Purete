@@ -1,6 +1,7 @@
 class Person
 
-  #attr_accessor :name, :last_name ...
+  attr_reader :name, :last_name, :mail, :district_id, :home,
+                :phone, :gender, :birthday, :nationality
 
   def initialize(name, last_name, mail, district_id, home,
                  phone, gender, birthday, nationality)

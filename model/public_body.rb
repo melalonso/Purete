@@ -1,6 +1,6 @@
 class PublicBody
 
-  attr_accessor :name, :id
+  attr_reader :name, :id
 
   def initialize(id, name)
     @id = id

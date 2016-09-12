@@ -1,31 +1,28 @@
 require 'json'
 require 'faraday'
+require 'yaml'
 
 class ApiAccessor
 
-  BASE_URI = 'http://informacionpublica.paraguay.gov.py:80/portal-core/rest/api'
-  REQ_TOKEN = '4b8f31b6-232e-4f8f-b30c-74870c22bfe1'
-  CLIENT_SECRET = '393a02b58927de61c7fea1fed722eff0a45e320c44174bc5f9d8ddb6858bbdc3'
-
   def initialize
-    @conn = Faraday.new(:url => BASE_URI) do |faraday|
-      #faraday.request :url_encoded # form-encode POST params
-      #faraday.response :logger                  # log requests to STDOUT
+    read_config
+    @conn = Faraday.new(:url => @base_uri) do |faraday|
+      # faraday.request :url_encoded # form-encode POST params
+      # faraday.response :logger                  # log requests to STDOUT
       faraday.adapter Faraday.default_adapter # make requests with Net::HTTP
-      faraday.headers['Authorization'] = 'Bearer [991f6eb5-7b0a-45f1-9828-bc738fa491c5]'
     end
+    new_access_token
   end
 
-  def authenticate
-    @conn.post do |req|
-      req.url '/auth/token'
-      req.headers['Authorization'] = "Basic [#{REQ_TOKEN}]"
-      req.headers['Content-Type'] = 'application/json'
-      req.body = "{ 'clientSecret': #{CLIENT_SECRET} }"
-    end
+  def read_config(env = 'test')
+    config = YAML.load_file('config/gov_api.yml')
+    @base_uri = config[env]['uri']
+    @req_token = config[env]['request_token']
+    @client_secret = config[env]['client_secret']
   end
 
   def get_bodies(id = nil)
+    check_expiry
     if id
       return @conn.get "instituciones/#{id}"
     end
@@ -33,20 +30,52 @@ class ApiAccessor
   end
 
   def get_request(id = nil)
+    check_expiry
     if id
-      @conn.get "solicitudes/#{id}"
+      return @conn.get "solicitudes/#{id}"
     end
     @conn.get 'solicitudes', {:page => '1'}
   end
 
-  # Lack of test
-  def post_request(request)
+  def get_supports
+    check_expiry
+    @conn.get 'soportes'
+  end
+
+  def post_request(request_hash)
+    check_expiry
     # post payload as JSON instead of "www-form-urlencoded" encoding:
     @conn.post do |req|
       req.url 'solicitudes'
       req.headers['Content-Type'] = 'application/json'
-      req.body = '{ "name": "Unagi" }'
+      req.headers['Accept'] = 'application/json'
+      req.body = request_hash.to_json.to_s
     end
   end
+
+  def check_expiry
+    if @expiration_date.to_i < Time.now.to_i
+      new_access_token
+    end
+  end
+
+  def new_access_token
+    response = authenticate
+    map = JSON.parse(response.body)
+    @expiration_date = response.headers['x-rate-limit-reset']
+    @conn.headers['Authorization'] = "Bearer [#{map['accessToken']}]"
+  end
+
+  def authenticate
+    @conn.post do |req|
+      req.url 'auth/token'
+      req.headers['Authorization'] = "Basic [#{@req_token}]"
+      req.headers['Content-Type'] = 'application/json'
+      req.headers['Accept'] = 'application/json'
+      req.body = "{ \"clientSecret\": \"#{@client_secret}\" }"
+    end
+  end
+
+  private :check_expiry, :new_access_token, :authenticate
 
 end

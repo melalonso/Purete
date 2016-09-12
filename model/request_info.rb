@@ -1,7 +1,8 @@
 
-class Request
+class RequestInfo
 
-  attr_accessor :title, :description
+  attr_reader :title, :description, :answer_type,
+                :format_type, :support_type
 
   def initialize(title, description, answer_type,
                  format_type, support_type)
