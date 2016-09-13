@@ -1,3 +1,4 @@
+# PORO of the information of a person
 class Person
 
   attr_reader :name, :last_name, :mail, :district_id, :home,

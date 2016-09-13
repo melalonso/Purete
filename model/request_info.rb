@@ -1,4 +1,4 @@
-
+# PORO of the information of a request
 class RequestInfo
 
   attr_reader :title, :description, :answer_type,

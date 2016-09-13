@@ -1,3 +1,5 @@
+# Utility used to parse the request needed by the API
+# to post a new information demand
 class RequestParser
 
   def initialize(person, public_body, req_info)
@@ -6,6 +8,7 @@ class RequestParser
     @req_info = req_info
   end
 
+  # Parses the information using the person, public_body and req_info objects
   def parse
     @req = Hash.new
     add_person_attrs
