@@ -2,45 +2,50 @@
 # to post a new information demand
 class RequestParser
 
-  def initialize(person, public_body, req_info)
-    @person = person
-    @public_body = public_body
-    @req_info = req_info
+  def initialize(info_request, outgoing_message)
+    @info_request = info_request
+    @outgoing_message = outgoing_message
   end
 
-  # Parses the information using the person, public_body and req_info objects
+  # Parses the information using the info_request and outgoing_message objects
   def parse
     @req = Hash.new
-    add_person_attrs
-    add_public_body_attrs
-    add_req_info_attrs
+    add_info_request_attrs
+    add_outgoing_message_attrs
+    add_other_values
     @req
   end
 
-  def add_public_body_attrs
-    @req['institucionID'] = @public_body.id
+  def add_outgoing_message_attrs
+    @req['descripcion'] = @outgoing_message.body
   end
 
-  def add_person_attrs
-    @req['mail'] = @person.mail
-    @req['nombre'] = @person.name
-    @req['apellido'] = @person.last_name
-    @req['domicilio'] = @person.home
-    @req['distritoID'] = @person.district_id
-    @req['telefono'] = @person.phone
-    @req['sexo'] = @person.gender
-    @req['nacionalidad'] = @person.nationality
-    @req['fechaNacimiento'] = @person.birthday
+  def add_info_request_attrs
+    @req['titulo'] = @info_request.title
+    @req['nombre'] = @info_request.user.name
+    @req['mail'] = @info_request.user.email
   end
 
-  def add_req_info_attrs
-    @req['titulo'] = @req_info.title
-    @req['descripcion'] = @req_info.description
-    @req['tipoRespuestaID'] = @req_info.answer_type
-    @req['formatoID'] = @req_info.format_type
-    @req['soporteID'] = @req_info.support_type
+  def add_other_values
+    @req['apellido'] = ' ' # Waiting for response
+    @req['institucionID'] = 1 # -> DB
+
+    @req['domicilio'] = '' # Waiting for response
+    @req['distritoID'] = 1 # Waiting for response
+
+    @req['nacionalidad'] = '' # Waiting for response
+
+    @req['tipoRespuestaID'] = 1 # Via email
+    @req['formatoID'] = 0 # None of the available
+    @req['soporteID'] = 2 # Digital Media
+
+    # Non obligatory according to
+    # http://informacionpublica.paraguay.gov.py/portal/#!/hacer_solicitud#busqueda
+    @req['telefono'] = ''
+    @req['sexo'] = ''
+    @req['fechaNacimiento'] = ''
   end
 
-  private :add_person_attrs, :add_public_body_attrs, :add_req_info_attrs
+  private :add_outgoing_message_attrs, :add_info_request_attrs, :add_other_values
 
 end

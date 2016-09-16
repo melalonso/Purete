@@ -19,7 +19,7 @@ class ApiAccessor
   # Reads the configuration of the environment to use.
   # Params:
   # +env+:: environment to use. Default is testing
-  def read_config(env = 'test')
+  def read_config(env = 'production')
     config = YAML.load_file('config/gov_api.yml')
     @base_uri = config[env]['uri']
     @req_token = config[env]['request_token']
@@ -29,12 +29,12 @@ class ApiAccessor
   # Gets the information of a public body.
   # Params:
   # +id+:: id to obtain a single public body, none to get all.
-  def get_bodies(id = nil)
+  def get_bodies(id = nil, page = '1')
     check_expiry
     if id
       return @conn.get "instituciones/#{id}"
     end
-    @conn.get 'instituciones', {:page => '1'}
+    @conn.get 'instituciones', {:page => page}
   end
 
   # Gets the information of a request.
@@ -46,6 +46,14 @@ class ApiAccessor
       return @conn.get "solicitudes/#{id}"
     end
     @conn.get 'solicitudes', {:page => '1'}
+  end
+
+  # Gets the information of the flows of a request.
+  # Params:
+  # +id+:: id to obtain the flows of a request
+  def get_request_flow(id)
+    check_expiry
+    @conn.get "flujos-solicitud/#{id}"
   end
 
   # Gets the information of the supports.
