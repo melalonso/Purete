@@ -33,9 +33,9 @@ class RequestParser
 
     # Non obligatory according to
     # http://informacionpublica.paraguay.gov.py/portal/#!/hacer_solicitud#busqueda
-    @req['telefono'] = '+595212179000'
-    @req['sexo'] = ''
-    @req['fechaNacimiento'] = ''
+    @req['telefono'] = '212179000' # Just like that, without +595 (error)
+    @req['sexo'] = ' ' # Must be completed or with a space
+    @req['fechaNacimiento'] = '' # Empty is ok, if it was put a space gives error
   end
 
 end
