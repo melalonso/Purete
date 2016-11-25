@@ -28,7 +28,7 @@ class RequestParser
   def self.add_default_values
     @req['distritoID'] = 1 # Default value
     @req['tipoRespuestaID'] = 1 # Via email
-    @req['formatoID'] = 0 # None of the available
+    @req['formatoID'] = 1 # Via HTML
     @req['soporteID'] = 2 # Digital Media
 
     # Non obligatory according to
