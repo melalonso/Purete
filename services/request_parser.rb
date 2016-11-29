@@ -37,5 +37,7 @@ class RequestParser
     @req['sexo'] = ' ' # Must be completed or with a space
     @req['fechaNacimiento'] = '' # Empty is ok, if it was put a space gives error
   end
+  
+  private_class_method :add_outgoing_message_attrs, :add_info_request_attrs, :add_default_values
 
 end
