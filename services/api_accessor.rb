@@ -6,12 +6,13 @@ require 'yaml'
 # allows the GET and POST methods.
 class ApiAccessor
 
-  def initialize
-    read_config
+  def initialize(env)
+    read_config(env)
     @conn = Faraday.new(:url => @base_uri) do |faraday|
       # faraday.request :url_encoded # form-encode POST params
       # faraday.response :logger                  # log requests to STDOUT
       faraday.adapter Faraday.default_adapter # make requests with Net::HTTP
+      faraday.options.timeout = 5
     end
     new_access_token
   end
@@ -19,7 +20,7 @@ class ApiAccessor
   # Reads the configuration of the environment to use.
   # Params:
   # +env+:: environment to use. Default is testing
-  def read_config(env = 'production')
+  def read_config(env = 'test')
     config = YAML.load_file('config/gov_api.yml')
     @base_uri = config[env]['uri']
     @req_token = config[env]['request_token']
@@ -78,6 +79,9 @@ class ApiAccessor
   # Method to check whether is needed to get a new access token
   def check_expiry
     if @expiration_date.to_i < Time.now.to_i
+      puts "====================================="
+      puts "Fue necesario renovar el access token"
+      puts "====================================="
       new_access_token
     end
   end
