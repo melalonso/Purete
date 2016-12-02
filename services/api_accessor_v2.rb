@@ -21,22 +21,56 @@ class GobiernoParaguay
     @client_secret = config[env]['client_secret']
   end
 
+  # Gets the information of a public body.
+  # Params:
+  # +id+:: id to obtain a single public body, none to get all.
+  def get_bodies(id = nil, page = '1')
+    check_expiry
+    if id
+      return self.class.get("/instituciones/#{id}")
+    end
+    self.class.get('/instituciones', {:page => page})
+  end
+
+  # Gets the information of a request.
+  # Params:
+  # +id+:: id to obtain a single request, none to get all.
   def get_request(id)
     check_expiry
     self.class.get("/solicitudes/#{id}")
   end
 
+  # Gets the information of the flows of a request.
+  # Params:
+  # +id+:: id to obtain the flows of a request
   def get_request_flow(id)
     check_expiry
     self.class.get("/flujos-solicitud/#{id}")
   end
 
+  # Gets the information of the supports.
+  def get_supports
+    check_expiry
+    self.class.get('/soportes')
+  end
+
+  # Posts the information of a request.
+  # Params:
+  # +request+:: hash with the request's information to post.
+  def post_request(request_hash)
+    check_expiry
+    self.class.post('/solicitudes',
+      :body => request_hash.to_json,
+      :headers => {
+          'Content-Type' => 'application/json',
+          'Accept' => 'application/json'
+      }
+    )
+  end
+
   # Method to check whether is needed to get a new access token
   def check_expiry
     if @expiration_date.to_i < Time.now.to_i
-      puts "====================================="
-      puts "Fue necesario renovar el access token"
-      puts "====================================="
       new_access_token
     end
   end
@@ -59,7 +93,7 @@ class GobiernoParaguay
 
   # Uses the API to authenticate using the request token and client secret
   def authenticate
-    result = self.class.post('/auth/token',
+    self.class.post('/auth/token',
       :body => { :clientSecret => '393a02b58927de61c7fea1fed722eff0a45e320c44174bc5f9d8ddb6858bbdc3' }.to_json,
       :headers =>
         {
@@ -68,7 +102,8 @@ class GobiernoParaguay
           'Accept' => 'application/json'
         }
     )
-    result
   end
+
+  private :check_expiry, :new_access_token, :authenticate, :check_success
 
 end
