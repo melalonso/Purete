@@ -79,9 +79,6 @@ class ApiAccessor
   # Method to check whether is needed to get a new access token
   def check_expiry
     if @expiration_date.to_i < Time.now.to_i
-      puts "====================================="
-      puts "Fue necesario renovar el access token"
-      puts "====================================="
       new_access_token
     end
   end
