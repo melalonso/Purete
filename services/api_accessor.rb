@@ -12,6 +12,7 @@ class ApiAccessor
       # faraday.request :url_encoded # form-encode POST params
       # faraday.response :logger                  # log requests to STDOUT
       faraday.adapter Faraday.default_adapter # make requests with Net::HTTP
+      faraday.options.timeout = 5
     end
     new_access_token
   end
